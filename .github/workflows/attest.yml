@@ -1,0 +1,26 @@
+name: attest
+on:
+  push:
+  workflow_dispatch:
+permissions:
+  contents: read
+  id-token: write
+  attestations: write
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: build artifact
+        run: |
+          printf 'rj-t025-attest-poc ref=%s\n' "$GITHUB_REF" > artifact.txt
+          sha256sum artifact.txt
+          cat artifact.txt
+      - name: attest
+        uses: actions/attest-build-provenance@v4
+        with:
+          subject-path: artifact.txt
+      - name: upload
+        uses: actions/upload-artifact@v4
+        with:
+          name: artifact
+          path: artifact.txt
